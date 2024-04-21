@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
-
+import re
 def scrape_div_text(url):
     # Utwórz opcje dla przeglądarki Chrome
     options = webdriver.ChromeOptions()
@@ -38,8 +38,3 @@ def scrape_div_text(url):
 
     return cleaned_texts
 
-# Testowanie funkcji na przykładowym adresie URL
-url = 'https://www.pudelek.pl'
-texts = scrape_div_text(url)
-for text in texts:
-    print(text)
