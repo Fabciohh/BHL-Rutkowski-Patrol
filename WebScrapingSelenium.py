@@ -1,41 +1,45 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
-# Adres URL strony, którą chcesz wczytać
-url = 'https://www.majtkomat.pl'
+def scrape_div_text(url):
+    # Utwórz opcje dla przeglądarki Chrome
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')  # Uruchamia przeglądarkę w trybie bezokienkowym
 
+    # Utwórz obiekt WebDriver dla przeglądarki Chrome
+    with webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options) as driver:
+        driver.get(url)
 
-# Pobranie kodu źródłowego strony za pomocą BeautifulSoup
-def get_html_content(url):
-    # Utworzenie obiektu WebDriver dla przeglądarki Chrome
-    driver = webdriver.Chrome('chromedriver.exe')
+        # Wykonaj skrypt JavaScript, aby otworzyć wszystkie divy
+        javascript_code = """
+        var divs = document.querySelectorAll('div');
+        divs.forEach(function(div) {
+            div.style.display = 'block';
+        });
+        """
+        driver.execute_script(javascript_code)
 
-    # Wczytanie strony
-    driver.get(url)
+        # Pobierz kod źródłowy strony
+        html_content = driver.page_source
 
-    # Pobranie kodu źródłowego strony
-    html_content = driver.page_source
-
-    # Zamknięcie przeglądarki
-    driver.quit()
-
-    return html_content
-
-
-# Parsowanie kodu HTML przy użyciu BeautifulSoup i wykonanie operacji na nim
-def parse_html(html_content):
-    # Parsowanie kodu HTML przy użyciu BeautifulSoup
+    # Parsuj kod HTML za pomocą Beautiful Soup
     soup = BeautifulSoup(html_content, 'html.parser')
 
-    # Tutaj możesz wykonywać operacje na kodzie HTML za pomocą BeautifulSoup
+    # Znajdź wszystkie elementy <div>
+    divs = soup.find_all('div')
 
-    # Przykładowe działanie - wyświetlenie tytułu strony
-    title = soup.title
-    print("Tytuł strony:", title.text)
+    # Zbierz treść wszystkich elementów <div> bez zbędnych przerw i znaków nowej linii
+    cleaned_texts = []
+    for div in divs:
+        cleaned_text = re.sub(r'\n+', ' ', div.text.strip())  # Usuń znaki nowej linii, zastępując je jednym spacją
+        cleaned_texts.append(cleaned_text)
 
+    return cleaned_texts
 
-# Pobranie kodu źródłowego strony za pomocą Selenium
-html_content = get_html_content(url)
-
-# Parsowanie kodu HTML i wykonanie operacji na nim
-parse_html(html_content)
+# Testowanie funkcji na przykładowym adresie URL
+url = 'https://www.pudelek.pl'
+texts = scrape_div_text(url)
+for text in texts:
+    print(text)
