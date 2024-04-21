@@ -29,9 +29,6 @@ driver.execute_script(javascript_code)
 # Pobierz kod źródłowy strony
 html_content = driver.page_source
 
-# Zamknij przeglądarkę
-driver.quit()
-
 # Parsuj kod HTML za pomocą Beautiful Soup
 soup = BeautifulSoup(html_content, 'html.parser')
 
@@ -41,3 +38,6 @@ divs = soup.find_all('div')
 # Wyświetl treść wszystkich elementów <div>
 for div in divs:
     print(div.text.strip())
+
+# Zamknij przeglądarkę
+driver.quit()
